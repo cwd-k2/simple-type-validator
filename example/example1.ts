@@ -29,17 +29,20 @@ const b: Validator<SomeTypeB> = {
 };
 
 const a: Validator<SomeTypeA> = {
-  keyA: is.possibly(is.string),
+  keyA: [is.string, is.undefined],
   keyB: is.number,
   keyC: is.constant(200),
   keyD: {
-    keyA: is.string,
+    keyA: [is.string, is.undefined],
     keyB: is.number,
     keyC: is.arrayof(is.boolean),
-    keyD: { keyA: is.string, keyB: is.possibly(is.number) },
+    keyD: {
+      keyA: is.string,
+      keyB: [is.number, is.undefined],
+    },
   },
-  keyE: is.possibly({ keyA: is.number }),
-  keyF: is.possibly(b),
+  keyE: [is.undefined, { keyA: is.number }],
+  keyF: [b, is.undefined],
 };
 
 const obj: any = {
