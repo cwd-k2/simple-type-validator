@@ -10,11 +10,22 @@ type Lift<U> = U extends never ? never : (_: U) => void;
 // Join<Lift<{ t1: A } | { t2: B }>> = { t1: A } & { t2: B }
 type Join<U> = [U] extends [(_: infer I) => void] ? I : never;
 
+// その型がぴったり真偽値かどうか
+type Bool<T> = [T] extends [true]
+  ? false
+  : [T] extends [false]
+  ? false
+  : [T] extends [boolean]
+  ? true
+  : false;
+
 type Tuplify<T> = Join<Lift<Unit<T>>> extends (_: void) => infer W
   ? [...Tuplify<Exclude<T, W>>, W]
   : [];
 
-type IsUnion<T1, T2 = T1> = T1 extends T2 //
+type IsUnion<T1, T2 = T1> = Bool<T1> extends true
+  ? false
+  : T1 extends T2
   ? [T2] extends [T1]
     ? false
     : true
@@ -68,9 +79,9 @@ const is = {
       typeof arg === typeof v && arg === v,
   // check array
   arrayof:
-    <T>(valid: (arg: unknown) => arg is T) =>
+    <T>(valid: Validator<T>) =>
     (args: unknown): args is T[] =>
-      Array.isArray(args) && args.every(valid),
+      Array.isArray(args) && args.every((arg) => like(arg, valid)),
 };
 
 export { type Validator, like, is };
