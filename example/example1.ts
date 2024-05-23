@@ -1,4 +1,4 @@
-import { type Validator, like, is } from "../index.new";
+import { type Validator, like, is } from "..";
 
 type SomeTypeA = {
   keyA?: string;
