@@ -6,5 +6,4 @@ See [example/example1.ts](example/example1.ts).
 
 ## Current problem
 
-- [x] The current problem is `Validator<string | number>` (which is `(arg: unknown) => arg is string | number`) also accepts `Validator<string>` (`(arg: unknown) => arg is string`).
-  - This can cause inadequate validator definitions.
+- [ ] `Validator<boolean>` is not interpreted as `(arg: unknown) => arg is boolean`, but `[(arg: unknown) => arg is true, (arg: unknown) => arg is false]` because `boolean` is treated as `true | false` union.
