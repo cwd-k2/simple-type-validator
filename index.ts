@@ -21,6 +21,8 @@ type IsUnion<T1, T2 = T1> = T1 extends T2
     : true
   : never;
 
+type Validator<T> = InnerV<T>;
+
 type InnerV<T, Tuplified = Tuplify<T>> = IsUnion<T> extends true
   ? { [P in keyof Tuplified]: InnerV<Tuplified[P]> }
   : T extends (infer E)[]
@@ -33,9 +35,9 @@ type InnerV<T, Tuplified = Tuplify<T>> = IsUnion<T> extends true
             : { [P in keyof T]-?: InnerV<T[P]> }
           : never);
 
-type Validator<T> = InnerV<T>;
+type ArrayV<T> = { type: "array"; elem: Validator<T> };
 
-function isArrayV<T>(v: unknown): v is { type: "array"; elem: Validator<T> } {
+function isArrayV<T>(v: unknown): v is ArrayV<T> {
   return (
     typeof v === "object" &&
     v !== null &&
@@ -48,7 +50,7 @@ function isArrayV<T>(v: unknown): v is { type: "array"; elem: Validator<T> } {
 function like<T>(arg: unknown, validator: Validator<T>): arg is T {
   // validator: array
   if (Array.isArray(validator))
-    return validator.some((f) => like(arg, f as Validator<any>));
+    return validator.some((f) => like(arg, f as Validator<unknown>));
 
   // validator: { type: "array", elem: ... }
   if (isArrayV(validator))
@@ -64,7 +66,7 @@ function like<T>(arg: unknown, validator: Validator<T>): arg is T {
   // arg: object, validator: object
   for (const key in validator) {
     const v = arg[key as keyof typeof arg] as unknown;
-    const f = validator[key] as Validator<any>;
+    const f = validator[key] as Validator<unknown>;
 
     if (!like(v, f)) return false;
   }
@@ -84,6 +86,11 @@ const is = {
     <const T extends primitive>(v: T) =>
     (arg: unknown): arg is T =>
       typeof arg === typeof v && arg === v,
+  // Validator<true | false> => [unknown => is false, unknown => is true]
+  bool: [
+    (arg: unknown): arg is false => arg === false,
+    (arg: unknown): arg is true => arg === true,
+  ] as [Validator<false>, Validator<true>],
 };
 
 export { type Validator, like, is };

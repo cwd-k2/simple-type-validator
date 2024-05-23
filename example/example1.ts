@@ -30,14 +30,14 @@ const b: Validator<SomeTypeB> = {
 
 const a: Validator<SomeTypeA> = {
   keyA: [is.string, is.undefined],
-  keyB: [is.constant(false), is.constant(true)],
+  keyB: is.bool,
   keyC: is.constant(200),
   keyD: {
     keyA: [is.string, is.undefined],
     keyB: is.number,
     keyC: {
       type: "array",
-      elem: [is.string, is.constant(false), is.constant(true)],
+      elem: [...is.bool, is.string],
     },
     keyD: {
       keyA: is.string,
