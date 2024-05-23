@@ -1,5 +1,3 @@
-type primitive = string | number | boolean | bigint | symbol | undefined | null;
-
 // U -> _ -> U
 type Unit<U> = U extends never ? never : (_: void) => U;
 
@@ -82,7 +80,7 @@ const is = {
   null: (arg: unknown): arg is null => arg === null,
   // constant (literal)
   constant:
-    <const T extends primitive>(v: T) =>
+    <const T extends string | number | boolean>(v: T) =>
     (arg: unknown): arg is T =>
       typeof arg === typeof v && arg === v,
   // Validator<true | false> => [unknown => is false, unknown => is true]
