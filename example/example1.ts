@@ -2,12 +2,12 @@ import { type Validator, like, is } from "..";
 
 type SomeTypeA = {
   keyA?: string;
-  keyB: number;
+  keyB: boolean;
   keyC: 200;
   keyD: {
     keyA?: string;
     keyB: number;
-    keyC: boolean[];
+    keyC: (string | boolean)[];
     keyD: {
       keyA: string;
       keyB?: number;
@@ -30,15 +30,18 @@ const b: Validator<SomeTypeB> = {
 
 const a: Validator<SomeTypeA> = {
   keyA: [is.string, is.undefined],
-  keyB: is.number,
+  keyB: [is.constant(false), is.constant(true)],
   keyC: is.constant(200),
   keyD: {
     keyA: [is.string, is.undefined],
     keyB: is.number,
-    keyC: is.arrayof(is.boolean),
+    keyC: {
+      type: "array",
+      elem: [is.string, is.constant(false), is.constant(true)],
+    },
     keyD: {
       keyA: is.string,
-      keyB: [is.number, is.undefined],
+      keyB: [is.undefined, is.number],
     },
   },
   keyE: [is.undefined, { keyA: is.number }],
@@ -46,7 +49,7 @@ const a: Validator<SomeTypeA> = {
 };
 
 const obj: any = {
-  keyB: 1,
+  keyB: true,
   keyC: 200,
   keyD: {
     keyA: "nested",

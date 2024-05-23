@@ -19,13 +19,12 @@ type Bool<T> = [T] extends [true]
   ? true
   : false;
 
+// union -> tuple に変換
 type Tuplify<T> = Join<Lift<Unit<T>>> extends (_: void) => infer W
   ? [...Tuplify<Exclude<T, W>>, W]
   : [];
 
-type IsUnion<T1, T2 = T1> = Bool<T1> extends true
-  ? false
-  : T1 extends T2
+type IsUnion<T1, T2 = T1> = T1 extends T2
   ? [T2] extends [T1]
     ? false
     : true
@@ -33,23 +32,39 @@ type IsUnion<T1, T2 = T1> = Bool<T1> extends true
 
 type InnerV<T, Tuplified = Tuplify<T>> = IsUnion<T> extends true
   ? { [P in keyof Tuplified]: InnerV<Tuplified[P]> }
+  : T extends (infer E)[]
+  ? { type: "array"; elem: InnerV<E> }
   :
       | ((arg: unknown) => arg is T)
       | (T extends object
-          ? T extends any[] | null
+          ? T extends null
             ? never
             : { [P in keyof T]-?: InnerV<T[P]> }
           : never);
 
 type Validator<T> = InnerV<T>;
 
+function isArrayV<T>(v: unknown): v is { type: "array"; elem: Validator<T> } {
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    "type" in v &&
+    v.type === "array" &&
+    "elem" in v
+  );
+}
+
 function like<T>(arg: unknown, validator: Validator<T>): arg is T {
   // validator: array
   if (Array.isArray(validator))
     return validator.some((f) => like(arg, f as Validator<any>));
 
-  // arg: array, primitive (null 含む) の際は validator: 関数
-  if (typeof arg !== "object" || arg === null || Array.isArray(arg))
+  // validator: { type: "array", elem: ... }
+  if (isArrayV(validator))
+    return Array.isArray(arg) && arg.every((v) => like(v, validator.elem));
+
+  if (typeof arg !== "object" || arg === null)
+    // arg: primitive (null 含む) の際は validator: 関数
     return typeof validator === "function" ? validator(arg) : false;
 
   // arg: object でも validator: 関数のこともある
@@ -72,16 +87,12 @@ const is = {
   number: (arg: unknown): arg is number => typeof arg === "number",
   boolean: (arg: unknown): arg is boolean => typeof arg === "boolean",
   undefined: (arg: unknown): arg is undefined => arg === undefined,
+  null: (arg: unknown): arg is null => arg === null,
   // constant (literal)
   constant:
     <const T extends primitive>(v: T) =>
     (arg: unknown): arg is T =>
       typeof arg === typeof v && arg === v,
-  // check array
-  arrayof:
-    <T>(valid: Validator<T>) =>
-    (args: unknown): args is T[] =>
-      Array.isArray(args) && args.every((arg) => like(arg, valid)),
 };
 
 export { type Validator, like, is };
