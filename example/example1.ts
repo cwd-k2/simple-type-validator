@@ -30,14 +30,14 @@ const b: ValidatorOf<SomeTypeB> = {
 
 const a: ValidatorOf<SomeTypeA> = {
   keyA: [is.string, is.undefined],
-  keyB: is.bool,
+  keyB: is.boolean,
   keyC: is.constant(200),
   keyD: {
     keyA: [is.string, is.undefined],
     keyB: is.number,
     keyC: {
       type: "array",
-      elem: [is.string, ...is.bool],
+      elem: [is.string, ...is.boolean],
     },
     keyD: {
       keyA: is.string,
@@ -70,6 +70,32 @@ if (result) {
 }
 
 console.log(result);
+
+type Recurse = {
+  keyA: string;
+  keyB: number;
+  keyC: (string | boolean)[];
+  keyD?: Recurse; // Recursive Type
+};
+
+let c: ValidatorOf<Recurse> = {
+  keyA: is.string,
+  keyB: is.number,
+  keyC: {
+    type: "array",
+    elem: [is.string, ...is.boolean],
+  },
+  // まあ適当に true にするのもできる
+  keyD: [is.anyway<Recurse>, is.undefined],
+};
+
+// 関数を書いても下のように代入できる
+function d(arg: unknown): arg is Recurse {
+  // 良い感じに処理
+  return true;
+}
+
+let e: ValidatorOf<Recurse> = d;
 
 async () => {
   // fetch とかの Promise に挟みこんで使うと型付くのでは
