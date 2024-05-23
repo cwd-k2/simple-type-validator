@@ -1,39 +1,4 @@
-type primitive = string | number | boolean | bigint | symbol | undefined | null;
-
-// U -> _ -> U
-type Unit<U> = U extends never ? never : (_: void) => U;
-
-// U -> U -> _
-type Lift<U> = U extends never ? never : (_: U) => void;
-
-// M(M(a)) + M(M(b)) + M(M(c)) -> M(M(a) * M(b) * M(c))
-// Join<Lift<{ t1: A } | { t2: B }>> = { t1: A } & { t2: B }
-type Join<U> = [U] extends [(_: infer I) => void] ? I : never;
-
-// union -> tuple に変換
-type Tuplify<T> = Join<Lift<Unit<T>>> extends (_: void) => infer W
-  ? [...Tuplify<Exclude<T, W>>, W]
-  : [];
-
-type IsUnion<T1, T2 = T1> = T1 extends T2
-  ? [T2] extends [T1]
-    ? false
-    : true
-  : never;
-
-type Validator<T> = InnerV<T>;
-
-type InnerV<T, Tuplified = Tuplify<T>> = IsUnion<T> extends true //
-  ? { [P in keyof Tuplified]: InnerV<Tuplified[P]> }
-  : T extends (infer E)[]
-  ? { type: "array"; elem: InnerV<E> }
-  :
-      | ((arg: unknown) => arg is T)
-      | (T extends object
-          ? T extends null
-            ? never
-            : { [P in keyof T]-?: InnerV<T[P]> }
-          : never);
+import { type Validator } from "./types";
 
 function isArrayV<T>(v: unknown): v is { type: "array"; elem: Validator<T> } {
   let pass =
@@ -82,14 +47,14 @@ const is = {
   null: (arg: unknown): arg is null => arg === null,
   // constant (literal)
   constant:
-    <const T extends primitive>(v: T) =>
+    <const T extends number | string | boolean>(v: T) =>
     (arg: unknown): arg is T =>
       typeof arg === typeof v && arg === v,
-  // Validator<true | false> => [unknown => is false, unknown => is true]
+  // is.bool
   bool: [
-    (arg: unknown): arg is false => arg === false,
     (arg: unknown): arg is true => arg === true,
-  ] as [Validator<false>, Validator<true>],
+    (arg: unknown): arg is false => arg === false,
+  ] as Validator<boolean>,
 };
 
 export { type Validator, like, is };

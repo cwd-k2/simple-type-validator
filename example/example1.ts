@@ -1,4 +1,4 @@
-import { type Validator, like, is } from "..";
+import { type Validator, like, is } from "../index.new";
 
 type SomeTypeA = {
   keyA?: string;
@@ -37,7 +37,7 @@ const a: Validator<SomeTypeA> = {
     keyB: is.number,
     keyC: {
       type: "array",
-      elem: [...is.bool, is.string],
+      elem: [is.string, ...is.bool],
     },
     keyD: {
       keyA: is.string,
@@ -48,7 +48,7 @@ const a: Validator<SomeTypeA> = {
   keyF: [b, is.undefined],
 };
 
-const obj: any = {
+const obj = {
   keyB: true,
   keyC: 200,
   keyD: {
