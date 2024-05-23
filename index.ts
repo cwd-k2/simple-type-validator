@@ -1,6 +1,9 @@
-import { type Validator } from "./types";
+import { type ValidatorOf } from "./types";
 
-function isArrayV<T>(v: unknown): v is { type: "array"; elem: Validator<T> } {
+function isArrayOfVs<T>(v: unknown): v is {
+  type: "array";
+  elem: ValidatorOf<T>;
+} {
   let pass =
     typeof v === "object" &&
     v !== null &&
@@ -11,13 +14,13 @@ function isArrayV<T>(v: unknown): v is { type: "array"; elem: Validator<T> } {
   return pass;
 }
 
-function like<T>(arg: unknown, validator: Validator<T>): arg is T {
+function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
   // validator: array
   if (Array.isArray(validator))
-    return validator.some((f) => like(arg, f as Validator<unknown>));
+    return validator.some((f) => like(arg, f as ValidatorOf<unknown>));
 
   // validator: { type: "array", elem: ... }
-  if (isArrayV(validator))
+  if (isArrayOfVs(validator))
     return Array.isArray(arg) && arg.every((v) => like(v, validator.elem));
 
   if (typeof arg !== "object" || arg === null)
@@ -30,7 +33,7 @@ function like<T>(arg: unknown, validator: Validator<T>): arg is T {
   // arg: object, validator: object
   for (const key in validator) {
     const v = arg[key as keyof typeof arg] as unknown;
-    const f = validator[key] as Validator<unknown>;
+    const f = validator[key] as ValidatorOf<unknown>;
 
     if (!like(v, f)) return false;
   }
@@ -54,7 +57,7 @@ const is = {
   bool: [
     (arg: unknown): arg is true => arg === true,
     (arg: unknown): arg is false => arg === false,
-  ] as Validator<boolean>,
+  ] as ValidatorOf<boolean>,
 };
 
-export { type Validator, like, is };
+export { type ValidatorOf, like, is };

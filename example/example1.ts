@@ -1,4 +1,4 @@
-import { type Validator, like, is } from "..";
+import { type ValidatorOf, like, is } from "..";
 
 type SomeTypeA = {
   keyA?: string;
@@ -24,11 +24,11 @@ type SomeTypeB = {
 };
 
 // モックにもなって良い感じ？
-const b: Validator<SomeTypeB> = {
+const b: ValidatorOf<SomeTypeB> = {
   keyA: is.string,
 };
 
-const a: Validator<SomeTypeA> = {
+const a: ValidatorOf<SomeTypeA> = {
   keyA: [is.string, is.undefined],
   keyB: is.bool,
   keyC: is.constant(200),
@@ -73,7 +73,7 @@ console.log(result);
 
 async () => {
   // fetch とかの Promise に挟みこんで使うと型付くのでは
-  function withValidator<T>(validator: Validator<T>): (p: any) => Promise<T> {
+  function withValidator<T>(validator: ValidatorOf<T>): (p: any) => Promise<T> {
     return async (p: any) => {
       if (like(p, validator)) {
         return p;
