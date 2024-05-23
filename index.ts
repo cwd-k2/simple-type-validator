@@ -10,15 +10,6 @@ type Lift<U> = U extends never ? never : (_: U) => void;
 // Join<Lift<{ t1: A } | { t2: B }>> = { t1: A } & { t2: B }
 type Join<U> = [U] extends [(_: infer I) => void] ? I : never;
 
-// その型がぴったり真偽値かどうか
-type Bool<T> = [T] extends [true]
-  ? false
-  : [T] extends [false]
-  ? false
-  : [T] extends [boolean]
-  ? true
-  : false;
-
 // union -> tuple に変換
 type Tuplify<T> = Join<Lift<Unit<T>>> extends (_: void) => infer W
   ? [...Tuplify<Exclude<T, W>>, W]
