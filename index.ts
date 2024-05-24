@@ -1,5 +1,13 @@
 import { type ValidatorOf } from "./types";
 
+// バリデーションエラー時に投げる例外
+// data は失敗した値
+class ValidationError extends Error {
+  constructor(message: string, public data: any) {
+    super(message);
+  }
+}
+
 function isArrayOfVs<T>(v: unknown): v is {
   type: "array";
   elem: ValidatorOf<T>;
@@ -14,6 +22,7 @@ function isArrayOfVs<T>(v: unknown): v is {
   return pass;
 }
 
+// 型ナローイングのために利用するバリデーション関数
 function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
   // validator: array
   if (Array.isArray(validator))
@@ -41,6 +50,17 @@ function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
   return true;
 }
 
+// バリデーションに成功したらその値、失敗したら例外を投げる
+// True / False を Either<T, Error> に変換するような役割
+function assume<T>(validator: ValidatorOf<T>): (arg: unknown) => T {
+  return (arg: unknown): T => {
+    if (like(arg, validator)) return arg;
+
+    throw new ValidationError("Validation failed", arg);
+  };
+}
+
+// 基本的なバリデータをまとめたオブジェクト
 const is = {
   // primitives
   string: (arg: unknown): arg is string => typeof arg === "string",
@@ -63,4 +83,4 @@ const is = {
   never: <T>(arg: unknown): arg is T => false,
 };
 
-export { type ValidatorOf, like, is };
+export { type ValidatorOf, ValidationError, like, assume, is };

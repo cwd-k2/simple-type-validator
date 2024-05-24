@@ -1,5 +1,6 @@
-import { type ValidatorOf, like, is } from "..";
+import { type ValidatorOf, like, assume, is } from "..";
 
+// 適当な型を定義
 type SomeTypeA = {
   keyA?: string;
   keyB: boolean;
@@ -19,22 +20,41 @@ type SomeTypeA = {
   keyF?: SomeTypeB;
 };
 
+// 型の入れ子に使う型
 type SomeTypeB = {
   keyA: string;
 };
 
-// モックにもなって良い感じ？
-const b: ValidatorOf<SomeTypeB> = {
-  keyA: is.string,
+// SomeTypeB のバリデータ
+// 関数として書ける
+const isSomeTypeB: ValidatorOf<SomeTypeB> = (
+  arg: unknown
+): arg is SomeTypeB => {
+  const pass =
+    typeof arg === "object" &&
+    arg !== null &&
+    "keyA" in arg &&
+    is.string(arg.keyA);
+
+  return pass;
 };
 
-const a: ValidatorOf<SomeTypeA> = {
+// SomeTypeA のバリデータ
+// 基本的なバリデータを組み合わせてオブジェクトとしても書ける
+const isSomeTypeA: ValidatorOf<SomeTypeA> = {
+  // union type の validator は tuple
+  // ValidatorOf<string | undefined>
+  // => [ValidatorOf<string>, ValidatorOf<undefined>]
   keyA: [is.string, is.undefined],
+  // boolean は true | false の union として扱われる
   keyB: is.boolean,
+  // as const みたいなのは is.constant 使うとよい
   keyC: is.constant(200),
+  // オブジェクトの入れ子もできる
   keyD: {
     keyA: [is.string, is.undefined],
     keyB: is.number,
+    // 配列の validator は { type: "array", elem: ValidatorOf<Element> }
     keyC: {
       type: "array",
       elem: [is.string, ...is.boolean],
@@ -45,10 +65,12 @@ const a: ValidatorOf<SomeTypeA> = {
     },
   },
   keyE: [is.undefined, { keyA: is.number }],
-  keyF: [b, is.undefined],
+  // 他で定義したバリデータも置くことができる
+  keyF: [isSomeTypeB, is.undefined],
 };
 
-const obj = {
+// バリデーションする値
+const possiblySomeTypeA: any = {
   keyB: true,
   keyC: 200,
   keyD: {
@@ -61,57 +83,31 @@ const obj = {
   },
 };
 
-const result = like<SomeTypeA>(obj, a);
-
-if (result) {
-  obj; // SomeTypeA
-} else {
-  obj; // any
-}
-
+// バリデーションする
+const result = like<SomeTypeA>(possiblySomeTypeA, isSomeTypeA);
 console.log(result);
 
-type Recurse = {
-  keyA: string;
-  keyB: number;
-  keyC: (string | boolean)[];
-  keyD?: Recurse; // Recursive Type
-};
-
-let c: ValidatorOf<Recurse> = {
-  keyA: is.string,
-  keyB: is.number,
-  keyC: {
-    type: "array",
-    elem: [is.string, ...is.boolean],
-  },
-  // まあ適当に true にするのもできる
-  keyD: [is.anyway<Recurse>, is.undefined],
-};
-
-// 関数を書いても下のように代入できる
-function d(arg: unknown): arg is Recurse {
-  // 良い感じに処理
-  return true;
+// T/F によって型のナローイングが効く
+if (result) {
+  possiblySomeTypeA; // SomeTypeA
+} else {
+  possiblySomeTypeA; // any
 }
 
-let e: ValidatorOf<Recurse> = d;
+() => {
+  // あとで catch する前提なら平坦にも書ける
+  const obj = {} as any;
+  const res = assume<SomeTypeA>(isSomeTypeA)(obj); // throws ValidationError
+
+  res; // プログラム上では SomeTypeA
+};
 
 async () => {
-  // fetch とかの Promise に挟みこんで使うと型付くのでは
-  function withValidator<T>(validator: ValidatorOf<T>): (p: any) => Promise<T> {
-    return async (p: any) => {
-      if (like(p, validator)) {
-        return p;
-      } else {
-        throw new Error(`Data validation failed:\n${p}`);
-      }
-    };
-  }
-
+  // fetch とかの Promise に挟みこんで使うと型が付く
+  // 失敗するなら Promise#catch するとよい
   const res = await fetch("")
     .then((res) => res.json())
-    .then(withValidator<SomeTypeA>(a));
+    .then(assume<SomeTypeA>(isSomeTypeA));
 
   res; // SomeTypeA
 };
