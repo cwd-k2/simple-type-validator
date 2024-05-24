@@ -42,7 +42,7 @@ const isSomeTypeB: ValidatorOf<SomeTypeB> = (
 // SomeTypeA のバリデータ
 // 基本的なバリデータを組み合わせてオブジェクトとしても書ける
 const isSomeTypeA: ValidatorOf<SomeTypeA> = {
-  // union type の validator は tuple
+  // union type の validator は unorderd tuple
   // ValidatorOf<string | undefined>
   // => [ValidatorOf<string>, ValidatorOf<undefined>]
   keyA: [is.string, is.undefined],
