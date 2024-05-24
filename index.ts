@@ -91,14 +91,14 @@ const is = {
   // primitives
   string: (arg: unknown): arg is string => typeof arg === "string",
   number: (arg: unknown): arg is number => typeof arg === "number",
-  undefined: (arg: unknown): arg is undefined => arg === undefined,
   boolean: (arg: unknown): arg is boolean => typeof arg === "boolean",
   null: (arg: unknown): arg is null => arg === null,
+  undefined: (arg: unknown): arg is undefined => arg === undefined,
   // constant (literal)
   constant:
     <const T extends number | string | boolean>(v: T) =>
     (arg: unknown): arg is T =>
-      typeof arg === typeof v && arg === v,
+      arg === v,
   // success anyway
   anyway: <T>(_: unknown): _ is T => true,
   // fail anyway
