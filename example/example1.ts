@@ -7,7 +7,7 @@ type SomeTypeA = {
   keyC: 200;
   keyD: {
     keyA?: string;
-    keyB: number;
+    keyB: [number, string];
     keyC: (string | boolean)[];
     keyD: {
       keyA: string;
@@ -53,8 +53,12 @@ const isSomeTypeA: ValidatorOf<SomeTypeA> = {
   // オブジェクトの入れ子もできる
   keyD: {
     keyA: [is.string, is.undefined],
-    keyB: is.number,
-    // 配列の validator は { type: "array", elem: ValidatorOf<Element> }
+    // tuple の validator は { type: "tuple", elem: [ValidatorOf<Element1>, ValidatorOf<Element2>, ...] }
+    keyB: {
+      type: "tuple",
+      elem: [is.number, is.string],
+    },
+    // array の validator は { type: "array", elem: ValidatorOf<Element> }
     keyC: {
       type: "array",
       elem: [is.string, ...is.boolean],
@@ -75,7 +79,7 @@ const possiblySomeTypeA: any = {
   keyC: 200,
   keyD: {
     keyA: "nested",
-    keyB: 2,
+    keyB: [1, "nested"],
     keyC: [true, false, false],
     keyD: {
       keyA: "double nested",

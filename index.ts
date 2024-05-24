@@ -8,9 +8,9 @@ class ValidationError extends Error {
   }
 }
 
-function isArrayOfVs<T>(v: unknown): v is {
+function isArrayOfVs(v: unknown): v is {
   type: "array";
-  elem: ValidatorOf<T>;
+  elem: ValidatorOf<unknown>;
 } {
   let pass =
     typeof v === "object" &&
@@ -22,18 +22,40 @@ function isArrayOfVs<T>(v: unknown): v is {
   return pass;
 }
 
+function isTupleOfV(v: unknown): v is {
+  type: "tuple";
+  elem: [ValidatorOf<unknown>, ...ValidatorOf<unknown>[]];
+} {
+  let pass =
+    typeof v === "object" &&
+    v !== null &&
+    "type" in v &&
+    v.type === "tuple" &&
+    "elem" in v &&
+    Array.isArray(v.elem);
+
+  return pass;
+}
+
 // 型ナローイングのために利用するバリデーション関数
 function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
-  // validator: array
-  if (Array.isArray(validator))
-    return validator.some((f) => like(arg, f as ValidatorOf<unknown>));
+  // union validator: unorderd [f1, f2, ...]
+  if (Array.isArray(validator)) return validator.some((f) => like(arg, f));
 
-  // validator: { type: "array", elem: ... }
+  // tuple validator: { type: "array", elem: ... }
   if (isArrayOfVs(validator))
     return Array.isArray(arg) && arg.every((v) => like(v, validator.elem));
 
+  // array validator: { type: "tuple", elem: ... }
+  if (isTupleOfV(validator))
+    return (
+      Array.isArray(arg) &&
+      arg.length === validator.elem.length &&
+      arg.every((v, i) => like(v, validator.elem[i]))
+    );
+
+  // arg: non-object (null 含む) の際は validator: 関数
   if (typeof arg !== "object" || arg === null)
-    // arg: primitive (null 含む) の際は validator: 関数
     return typeof validator === "function" ? validator(arg) : false;
 
   // arg: object でも validator: 関数のこともある
