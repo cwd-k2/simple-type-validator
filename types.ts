@@ -1,12 +1,19 @@
 type PeelSingleV<T> = T extends [infer R] ? R : T;
 
-type UnorderedVs<T, K = T> = [K] extends [never]
+type PushToTuple<T, U extends unknown[], P = U> = P extends []
+  ? [T]
+  : P extends [infer L, ...infer R]
+  ? [T, ...U] | [L, ...PushToTuple<T, R>]
+  : never;
+
+type OmitBool1st<T> = [boolean] extends [T]
+  ? PushToTuple<(arg: unknown) => arg is boolean, MakeUnorder<Exclude<T, boolean>>>
+  : MakeUnorder<T>;
+
+type MakeUnorder<U, T = U> = [T] extends [never]
   ? []
-  : K extends K
-  ? [
-      ((arg: unknown) => arg is K) | ObjectLikeV<K>,
-      ...UnorderedVs<Exclude<T, K>>
-    ]
+  : T extends T
+  ? [((arg: unknown) => arg is T) | ObjectLikeV<T>, ...MakeUnorder<Exclude<U, T>>]
   : never;
 
 type ObjectLikeV<T> = T extends object
@@ -19,6 +26,6 @@ type ObjectLikeV<T> = T extends object
     : { [K in keyof T]-?: ValidatorOf<T[K]> }
   : never;
 
-type ValidatorOf<T> = PeelSingleV<UnorderedVs<T>>;
+type ValidatorOf<T> = PeelSingleV<OmitBool1st<T>>;
 
 export { type ValidatorOf };

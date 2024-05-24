@@ -92,21 +92,17 @@ const is = {
   string: (arg: unknown): arg is string => typeof arg === "string",
   number: (arg: unknown): arg is number => typeof arg === "number",
   undefined: (arg: unknown): arg is undefined => arg === undefined,
+  boolean: (arg: unknown): arg is boolean => typeof arg === "boolean",
   null: (arg: unknown): arg is null => arg === null,
   // constant (literal)
   constant:
     <const T extends number | string | boolean>(v: T) =>
     (arg: unknown): arg is T =>
       typeof arg === typeof v && arg === v,
-  // boolean is treated as an union type in this case
-  boolean: [
-    (arg: unknown): arg is true => arg === true,
-    (arg: unknown): arg is false => arg === false,
-  ] as ValidatorOf<boolean>,
   // success anyway
-  anyway: <T>(arg: unknown): arg is T => true,
+  anyway: <T>(_: unknown): _ is T => true,
   // fail anyway
-  never: <T>(arg: unknown): arg is T => false,
+  never: <T>(_: unknown): _ is T => false,
 };
 
 export { type ValidatorOf, ValidationError, like, assume, is };

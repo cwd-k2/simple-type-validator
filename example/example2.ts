@@ -13,7 +13,7 @@ let isRecurse: ValidatorOf<Recurse> = {
   keyB: is.number,
   keyC: {
     type: "array",
-    elem: [is.string, ...is.boolean],
+    elem: [is.string, is.boolean],
   },
   // まあ適当に true にするのが最善？
   keyD: [is.anyway<Recurse>, is.undefined],

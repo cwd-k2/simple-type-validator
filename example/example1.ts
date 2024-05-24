@@ -28,14 +28,9 @@ type SomeTypeB = {
 
 // SomeTypeB のバリデータ
 // 関数として書ける
-const isSomeTypeB: ValidatorOf<SomeTypeB> = (
-  arg: unknown
-): arg is SomeTypeB => {
+const isSomeTypeB: ValidatorOf<SomeTypeB> = (arg: unknown): arg is SomeTypeB => {
   const pass =
-    typeof arg === "object" &&
-    arg !== null &&
-    "keyA" in arg &&
-    is.string(arg.keyA);
+    typeof arg === "object" && arg !== null && "keyA" in arg && is.string(arg.keyA);
 
   return pass;
 };
@@ -47,7 +42,6 @@ const isSomeTypeA: ValidatorOf<SomeTypeA> = {
   // ValidatorOf<string | undefined>
   // => [ValidatorOf<string>, ValidatorOf<undefined>]
   keyA: [is.string, is.undefined],
-  // boolean は true | false の union として扱われる
   keyB: is.boolean,
   // as const みたいなのは is.constant 使うとよい
   keyC: is.constant(200),
@@ -62,7 +56,7 @@ const isSomeTypeA: ValidatorOf<SomeTypeA> = {
     // array の validator は { type: "array", elem: ValidatorOf<Element> }
     keyC: {
       type: "array",
-      elem: [is.string, ...is.boolean],
+      elem: [is.string, is.boolean],
     },
     keyD: {
       keyA: is.string,
