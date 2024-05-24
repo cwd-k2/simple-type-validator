@@ -39,6 +39,10 @@ function isTupleOfV(v: unknown): v is {
 
 // 型ナローイングのために利用するバリデーション関数
 function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
+  // function validator: just write function
+  // javascript cannot determine the argument types and return types of functions
+  if (validator === "function") return typeof arg === "function";
+
   // union validator: unorderd [f1, f2, ...]
   if (Array.isArray(validator)) return validator.some((f) => like(arg, f));
 

@@ -10,8 +10,8 @@ type UnorderedVs<T, K = T> = [K] extends [never]
   : never;
 
 type ObjectLikeV<T> = T extends object
-  ? T extends null
-    ? never
+  ? T extends Function
+    ? "function"
     : T extends [unknown, ...unknown[]]
     ? { type: "tuple"; elem: { [K in keyof T]-?: ValidatorOf<T[K]> } }
     : T extends (infer E)[]

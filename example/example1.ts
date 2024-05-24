@@ -18,6 +18,7 @@ type SomeTypeA = {
     keyA: number;
   };
   keyF?: SomeTypeB;
+  func: (a: number) => string;
 };
 
 // 型の入れ子に使う型
@@ -71,6 +72,8 @@ const isSomeTypeA: ValidatorOf<SomeTypeA> = {
   keyE: [is.undefined, { keyA: is.number }],
   // 他で定義したバリデータも置くことができる
   keyF: [isSomeTypeB, is.undefined],
+  // メソッド
+  func: "function",
 };
 
 // バリデーションする値
@@ -85,6 +88,7 @@ const possiblySomeTypeA: any = {
       keyA: "double nested",
     },
   },
+  func: (a: number) => "string",
 };
 
 // バリデーションする
