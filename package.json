@@ -1,0 +1,22 @@
+{
+  "name": "simple-type-validator",
+  "version": "0.0.0",
+  "description": "simply type assumption with validator",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "postinstall": "tsc"
+  },
+  "author": "cwd-k2",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
