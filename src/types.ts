@@ -26,6 +26,9 @@ type ObjectLikeV<T> = T extends object
     : { [K in keyof T]-?: ValidatorOf<T[K]> }
   : never;
 
+/**
+ * Either a function or an structured object to describe the condition to be satisfied when an untyped value can be assumed as the type `T`.
+ */
 type ValidatorOf<T> = PeelSingleV<OmitBool1st<T>>;
 
 export { type ValidatorOf };

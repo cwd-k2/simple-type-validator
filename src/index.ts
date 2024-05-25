@@ -2,6 +2,10 @@ import { type ValidatorOf } from "./types";
 
 // バリデーションエラー時に投げる例外
 // data は失敗した値
+/**
+ * Error when running a validator ends in `false`.
+ * Contains original `data` as an untyped value.
+ */
 class ValidationError extends Error {
   constructor(message: string, public data: any) {
     super(message);
@@ -38,6 +42,9 @@ function isTupleOfV(v: unknown): v is {
 }
 
 // 型ナローイングのために利用するバリデーション関数
+/**
+ * Runs the validator to provide type narrowings.
+ */
 function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
   // function validator: just write function
   // javascript cannot determine the argument types and return types of functions
@@ -78,6 +85,10 @@ function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
 
 // バリデーションに成功したらその値、失敗したら例外を投げる
 // True / False を Either<T, Error> に変換するような役割
+/**
+ * Runs the validator and return the typed value.
+ * Throws `ValidationError(msg, data)` error if fails.
+ */
 function assume<T>(validator: ValidatorOf<T>): (arg: unknown) => T {
   return (arg: unknown): T => {
     if (like(arg, validator)) return arg;
@@ -87,6 +98,9 @@ function assume<T>(validator: ValidatorOf<T>): (arg: unknown) => T {
 }
 
 // 基本的なバリデータをまとめたオブジェクト
+/**
+ * Basic `ValidatorOf<T>`s which can be used to compose custom validators.
+ */
 const is = {
   // primitives
   string: (arg: unknown): arg is string => typeof arg === "string",
@@ -94,15 +108,16 @@ const is = {
   boolean: (arg: unknown): arg is boolean => typeof arg === "boolean",
   null: (arg: unknown): arg is null => arg === null,
   undefined: (arg: unknown): arg is undefined => arg === undefined,
-  // constant (literal)
+  /** For constants (literals). */
   constant:
     <const T extends number | string | boolean>(v: T) =>
     (arg: unknown): arg is T =>
       arg === v,
-  // success anyway
+  /** Success anyway. */
   anyway: <T>(_: unknown): _ is T => true,
-  // fail anyway
+  /** Fail anyway. */
   never: <T>(_: unknown): _ is T => false,
 };
 
 export { type ValidatorOf, ValidationError, like, assume, is };
+export * as unstable from "./unstable";

@@ -1,4 +1,4 @@
-import { type ValidatorOf, like, assume, is } from "..";
+import { type ValidatorOf, like, assume, is, unstable } from "..";
 
 // 適当な型を定義
 type SomeTypeA = {
@@ -18,7 +18,8 @@ type SomeTypeA = {
     keyA: number;
   };
   keyF?: SomeTypeB;
-  func: (a: number) => string;
+  funA: (a: number) => string;
+  funB: (a: boolean | null, b: string) => object;
 };
 
 // 型の入れ子に使う型
@@ -66,9 +67,16 @@ const isSomeTypeA: ValidatorOf<SomeTypeA> = {
   keyE: [is.undefined, { keyA: is.number }],
   // 他で定義したバリデータも置くことができる
   keyF: [isSomeTypeB, is.undefined],
-  // メソッド
-  func: "function",
+  // メソッド (部分的なサポート) 単に "function" と書く
+  // 実際には Response#json など単なるデータの any を考えているのでおまけ程度
+  funA: "function",
+  // とりあえず成功するバリデータも書ける
+  funB: is.anyway,
 };
+
+// unstable.is.function で引数の数についてのバリデーションを書くこともできる
+// 引数や戻り値に関してはランタイムで情報を取れない
+isSomeTypeA.funB = unstable.is.function(2);
 
 // バリデーションする値
 const possiblySomeTypeA: any = {
@@ -82,7 +90,8 @@ const possiblySomeTypeA: any = {
       keyA: "double nested",
     },
   },
-  func: (a: number) => "string",
+  funA: (a: number) => "string",
+  funB: (a: boolean | null, b: string) => {},
 };
 
 // バリデーションする
