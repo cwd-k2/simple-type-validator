@@ -87,7 +87,7 @@ If you use this with `Promise`:
 ```ts
 let v: ValidatorOf<T>;
 
-let res = fetch(url).then(res => res.json()).then(validate<T>(v)); // res is T!
+let res = await fetch(url).then(res => res.json()).then(validate<T>(v)); // res is T!
 ```
 
 ## Type
