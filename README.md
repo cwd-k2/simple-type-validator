@@ -78,7 +78,7 @@ Simple validation function making.
 let v: ValidatorOf<T>;
 let o: any;
 
-let check = validate<T>(v); // (arg: unknown) => arg is T
+let check = validate<T>(v); // (arg: unknown) => T
 let typed = check(o); // T or throws ValidationError
 ```
 
