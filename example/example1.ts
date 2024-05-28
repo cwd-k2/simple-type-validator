@@ -1,4 +1,4 @@
-import { type ValidatorOf, like, assume, is, unstable } from "..";
+import { type ValidatorOf, like, validate, is, unstable } from "..";
 
 // 適当な型を定義
 type SomeTypeA = {
@@ -108,7 +108,7 @@ if (result) {
 () => {
   // あとで catch する前提なら平坦にも書ける
   const obj = {} as any;
-  const res = assume<SomeTypeA>(isSomeTypeA)(obj); // throws ValidationError
+  const res = validate<SomeTypeA>(isSomeTypeA)(obj); // throws ValidationError
 
   res; // プログラム上では SomeTypeA
 };
@@ -118,7 +118,7 @@ async () => {
   // 失敗するなら Promise#catch するとよい
   const res = await fetch("")
     .then((res) => res.json())
-    .then(assume<SomeTypeA>(isSomeTypeA));
+    .then(validate<SomeTypeA>(isSomeTypeA));
 
   res; // SomeTypeA
 };
