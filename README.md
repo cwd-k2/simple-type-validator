@@ -135,7 +135,7 @@ let v: ValidatorOf<Person>;
 
 #### For arrays
 
-For `T[]`, `ValidatorOf<T>` can be resolved as `{ type: "array" as const, elem: ValidatorOf<T> }`.
+For `T[]`, `ValidatorOf<T[]>` can be resolved as `{ type: "array" as const, elem: ValidatorOf<T> }`.
 
 ```ts
 // type `(arg: unknown) => arg is Person[]`
