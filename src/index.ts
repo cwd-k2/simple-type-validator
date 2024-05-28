@@ -1,45 +1,5 @@
-import { type ValidatorOf } from "./types";
-
-// バリデーションエラー時に投げる例外
-// data は失敗した値
-/**
- * Error when running a validator ends in `false`.
- * Contains original `data` as an untyped value.
- */
-class ValidationError extends Error {
-  constructor(message: string, public data: any) {
-    super(message);
-  }
-}
-
-function isArrayOfVs(v: unknown): v is {
-  type: "array";
-  elem: ValidatorOf<unknown>;
-} {
-  let pass =
-    typeof v === "object" &&
-    v !== null &&
-    "type" in v &&
-    v.type === "array" &&
-    "elem" in v;
-
-  return pass;
-}
-
-function isTupleOfV(v: unknown): v is {
-  type: "tuple";
-  elem: [ValidatorOf<unknown>, ...ValidatorOf<unknown>[]];
-} {
-  let pass =
-    typeof v === "object" &&
-    v !== null &&
-    "type" in v &&
-    v.type === "tuple" &&
-    "elem" in v &&
-    Array.isArray(v.elem);
-
-  return pass;
-}
+import type { ValidatorOf } from "./types";
+import { isArrayOfVs, isTupleOfV } from "./util";
 
 // 型ナローイングのために利用するバリデーション関数
 /**
@@ -83,20 +43,6 @@ function like<T>(arg: unknown, validator: ValidatorOf<T>): arg is T {
   return true;
 }
 
-// バリデーションに成功したらその値、失敗したら例外を投げる
-// True / False を Either<T, Error> に変換するような役割
-/**
- * Runs the validator and return the typed value.
- * Throws `ValidationError(msg, data)` error if fails.
- */
-function assume<T>(validator: ValidatorOf<T>): (arg: unknown) => T {
-  return (arg: unknown): T => {
-    if (like(arg, validator)) return arg;
-
-    throw new ValidationError("Validation failed", arg);
-  };
-}
-
 // 基本的なバリデータをまとめたオブジェクト
 /**
  * Basic `ValidatorOf<T>`s which can be used to compose custom validators.
@@ -119,5 +65,7 @@ const is = {
   never: <T>(_: unknown): _ is T => false,
 };
 
-export { type ValidatorOf, ValidationError, like, assume, is };
+export type { ValidatorOf };
+export { like, is };
+export * from "./validate";
 export * as unstable from "./unstable";
