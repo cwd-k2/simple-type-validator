@@ -99,6 +99,8 @@ Basically, it is `(arg: unknown) => arg is T`.
 ```ts
 // type `(arg: unknown) => arg is T`
 let v: ValidatorOf<string>;
+
+v = (arg: unknown): arg is string => typeof arg === 'string';
 ```
 
 #### For unions
@@ -114,6 +116,8 @@ For union types like `T | S`, `ValidatorOf<T | S>` will be **Unorderd Tuple** of
 //   - [ValidatorOf<number>, ValidatorOf<string>, ValidatorOf<boolean>]
 //   - ... (permutation of tuples)
 let v: ValidatorOf<string | number | boolean>;
+
+v = [is.string, is.number, is.boolean];
 ```
 
 #### For objects
@@ -130,7 +134,12 @@ type Person = {
 
 // type `(arg: unknown) => arg is Person`
 // OR type `{ name: ValidatorOf<string>; age: ValidatorOf<number | undefined> }`
-let v: ValidatorOf<Person>; 
+let v: ValidatorOf<Person>;
+
+v = {
+  name: is.string,
+  age: [is.number, is.undefined],
+};
 ```
 
 #### For arrays
@@ -139,8 +148,13 @@ For `T[]`, `ValidatorOf<T[]>` can be resolved as `{ type: "array" as const, elem
 
 ```ts
 // type `(arg: unknown) => arg is Person[]`
-// OR type `{ type: "array", elem: ValidatorOf<T> }`
+// OR type `{ type: "array", elem: ValidatorOf<Person> }`
 let v: ValidatorOf<Person[]>;
+
+v = {
+  type: "array",
+  elem: isPerson,
+}
 ```
 
 #### For tuples
@@ -151,6 +165,11 @@ For tuples like `[S, T, U]`, `ValidatorOf<[T, S, U]>` will be calculated as `{ t
 // type `(arg: unknown) => arg is [string, number]`
 // OR type `{ type: "tuple", elem: [ValidatorOf<string>, ValidatorOf<number>] }`
 let v: ValidatorOf<[string, number]>;
+
+v = {
+  type: "tuple",
+  elem: [is.string, is.number],
+};
 ```
 
 #### For functions
@@ -163,6 +182,8 @@ For function, you can only write `"function"` as const.
 // type `(arg: unknown) => arg is (a: string) => number`
 // OR type `"function"` as const
 let v: ValidatorOf<(a: string) => number>;
+
+v = "function";
 ```
 
 ### `ValidationError(message: string, data?: unknown)`
