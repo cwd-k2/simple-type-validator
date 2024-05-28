@@ -193,6 +193,7 @@ An `Error` returned when validation failed. Contains untyped `data` which has be
 ```
 ValidationError: <data>.updated_at fails to pass validator (`isFormattedDateString').
     at (...) {
+  data: {
     id: 1,
     name: 'a user',
     created_at: '2000-01-01 00:00:00',
