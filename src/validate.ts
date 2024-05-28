@@ -63,7 +63,9 @@ function assume<T>(propName: string, arg: unknown, validator: ValidatorOf<T>): a
     if (typeof validator !== "function")
       throw new ValidationError(`Inappropriate validator function for ${propName}.`);
     if (!validator(arg))
-      throw new ValidationError(`${propName} does not match \`${validator.name}'.`);
+      throw new ValidationError(
+        `${propName} does not pass validator (\`${validator.name}').`
+      );
 
     return true;
   }
@@ -71,7 +73,9 @@ function assume<T>(propName: string, arg: unknown, validator: ValidatorOf<T>): a
   // arg: object でも validator: 関数のこともある
   if (typeof validator === "function") {
     if (!validator(arg))
-      throw new ValidationError(`${propName} does not match \`${validator.name}'.`);
+      throw new ValidationError(
+        `${propName} does not pass validator (\`${validator.name}').`
+      );
 
     return true;
   }
