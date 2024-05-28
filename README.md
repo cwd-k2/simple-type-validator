@@ -43,11 +43,11 @@ if (isT(res)) {
 And, you can throw `any` away to somewhere errors are handled.
 
 ```ts
-if (!isT(res)) throw "Hopefully someone in somewhere handle this any."
+if (!isT(res)) throw "Hopefully someone in somewhere handle this."
 res; // is T below
 ```
 
-But... it is painful to write precise type-narrowing & validating function with your hand.
+But... it is painful to write precise type-narrowing & validating functions with your hand.
 
 So I decided to make a simple library to create that kind of stuff, and provide basic validation functionalities.
 
