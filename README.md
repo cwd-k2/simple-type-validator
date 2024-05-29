@@ -47,7 +47,7 @@ if (!isT(res)) throw "Hopefully someone in somewhere handle this."
 res; // is T below
 ```
 
-But... it is painful to write precise type-narrowing & validating functions with your hand.
+But... it is painful to write precise type-narrowing & validating functions with your bare hands.
 
 So I decided to make a simple library to create that kind of stuff, and provide basic validation functionalities.
 
@@ -154,12 +154,12 @@ let v: ValidatorOf<Person[]>;
 v = {
   type: "array",
   elem: isPerson,
-}
+};
 ```
 
 #### For tuples
 
-For tuples like `[S, T, U]`, `ValidatorOf<[T, S, U]>` will be calculated as `{ type: "tuple", elem: [ValidatorOf<S>, ValidatorOf<T>, ValidatorOf<U>] }`
+For tuples like `[S, T, U]`, `ValidatorOf<[S, T, U]>` will be calculated as `{ type: "tuple", elem: [ValidatorOf<S>, ValidatorOf<T>, ValidatorOf<U>] }`
 
 ```ts
 // type `(arg: unknown) => arg is [string, number]`
