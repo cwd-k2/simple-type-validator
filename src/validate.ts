@@ -27,14 +27,16 @@ function assume<T>(propName: string, arg: unknown, validator: ValidatorOf<T>): a
     let ok = false;
     let errors: string[] = [];
     // どれかひとつでも true で ok
-    validator.forEach((f) => {
+    for (const f of validator) {
       try {
         ok ||= assume(propName, arg, f);
+        if (ok) break;
       } catch (e) {
         if (e instanceof ValidationError) errors.push(e.message);
-        else errors.push("unknown error.");
+        else if (e instanceof Error) errors.push(e.message);
+        else errors.push(`unknown error: (${e}).`);
       }
-    });
+    }
     if (!ok) throw new ValidationError(`[ ${errors.map((s) => `"${s}"`).join(", ")} ]`);
 
     return true;
