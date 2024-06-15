@@ -31,4 +31,4 @@ type ObjectLikeV<T> = T extends object
  */
 type ValidatorOf<T> = PeelSingleV<OmitBool1st<T>>;
 
-export { type ValidatorOf };
+export type { ValidatorOf };
