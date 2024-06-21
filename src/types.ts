@@ -1,34 +1,36 @@
-type PeelSingleV<T> = T extends [infer R] ? R : T;
+type HeadOrTuple<T> = T extends [infer R] ? R : T;
 
-type PushToTuple<T, U extends unknown[], P = U> = P extends []
+type PushUnorder<T, U extends unknown[], P = U> = P extends []
   ? [T]
   : P extends [infer L, ...infer R]
-  ? [T, ...U] | [L, ...PushToTuple<T, R>]
-  : never;
+    ? [T, ...U] | [L, ...PushUnorder<T, R>]
+    : never;
 
-type OmitBool1st<T> = [boolean] extends [T]
-  ? PushToTuple<(arg: unknown) => arg is boolean, MakeUnorder<Exclude<T, boolean>>>
-  : MakeUnorder<T>;
+type MakeUnorder<T> = [boolean] extends [T]
+  ? PushUnorder<FunctionalV<boolean>, BaseUnorder<Exclude<T, boolean>>>
+  : BaseUnorder<T>;
 
-type MakeUnorder<U, T = U> = [T] extends [never]
+type BaseUnorder<U, T = U> = [T] extends [never]
   ? []
   : T extends T
-  ? [((arg: unknown) => arg is T) | ObjectLikeV<T>, ...MakeUnorder<Exclude<U, T>>]
-  : never;
+    ? [FunctionalV<T> | ObjectLikeV<T>, ...BaseUnorder<Exclude<U, T>>]
+    : never;
+
+type FunctionalV<T> = (arg: unknown) => arg is T;
 
 type ObjectLikeV<T> = T extends object
   ? T extends Function
     ? "function"
     : T extends [unknown, ...unknown[]]
-    ? { type: "tuple"; elem: { [K in keyof T]-?: ValidatorOf<T[K]> } }
-    : T extends (infer E)[]
-    ? { type: "array"; elem: ValidatorOf<E> }
-    : { [K in keyof T]-?: ValidatorOf<T[K]> }
+      ? { type: "tuple"; elem: { [K in keyof T]-?: ValidatorOf<T[K]> } }
+      : T extends (infer E)[]
+        ? { type: "array"; elem: ValidatorOf<E> }
+        : { [K in keyof T]-?: ValidatorOf<T[K]> }
   : never;
 
 /**
  * Either a function or an structured object to describe the condition to be satisfied when an untyped value can be assumed as the type `T`.
  */
-type ValidatorOf<T> = PeelSingleV<OmitBool1st<T>>;
+type ValidatorOf<T> = HeadOrTuple<MakeUnorder<T>>;
 
 export type { ValidatorOf };

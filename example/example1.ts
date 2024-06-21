@@ -1,4 +1,5 @@
-import { type ValidatorOf, like, validate, is, unstable } from "..";
+import type { ValidatorOf } from "..";
+import { like, validate, is, unstable } from "..";
 
 // 適当な型を定義
 type SomeTypeA = {
@@ -29,9 +30,14 @@ type SomeTypeB = {
 
 // SomeTypeB のバリデータ
 // 関数として書ける
-const isSomeTypeB: ValidatorOf<SomeTypeB> = (arg: unknown): arg is SomeTypeB => {
+const isSomeTypeB: ValidatorOf<SomeTypeB> = (
+  arg: unknown,
+): arg is SomeTypeB => {
   const pass =
-    typeof arg === "object" && arg !== null && "keyA" in arg && is.string(arg.keyA);
+    typeof arg === "object" &&
+    arg !== null &&
+    "keyA" in arg &&
+    is.string(arg.keyA);
 
   return pass;
 };

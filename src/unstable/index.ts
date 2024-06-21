@@ -5,7 +5,7 @@ const is = {
    */
   function:
     <T extends unknown[], N extends T["length"], R>(
-      arglen: N
+      arglen: N,
     ): ((arg: unknown) => arg is (...args: T) => R) =>
     (arg: unknown): arg is (...args: T) => R =>
       typeof arg === "function" && arg.length === arglen,
